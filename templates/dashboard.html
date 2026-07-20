@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Phishing Detection System</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f2f5f7;
+    margin:0;
+    padding:40px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:15px;
+}
+
+h1{
+    text-align:center;
+}
+
+input{
+    width:70%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #aaa;
+}
+
+button{
+    padding:12px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+#result{
+    margin-top:25px;
+    padding:20px;
+    border-radius:10px;
+    font-size:18px;
+}
+
+.card{
+    background:#f8f8f8;
+    padding:15px;
+    margin-top:15px;
+    border-radius:10px;
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🛡️ Phishing Detection System</h1>
+
+<p>Enter website URL to check:</p>
+
+<input id="url" placeholder="https://example.com">
+
+<button onclick="analyzeURL()">Analyze</button>
+
+
+<div id="result"></div>
+
+
+</div>
+
+
+<script>
+
+function analyzeURL(){
+
+let url=document.getElementById("url").value;
+
+
+fetch("/api/analyze",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+url:url
+})
+
+})
+
+
+.then(response=>response.json())
+
+.then(data=>{
+
+
+let box=document.getElementById("result");
+
+
+let issues = "";
+
+if(data.features.brand_impersonation){
+    issues += "✓ Brand impersonation<br>";
+}
+
+if(data.features.credential_path){
+    issues += "✓ Credential keyword detected<br>";
+}
+
+if(data.features.has_ip_host){
+    issues += "✓ IP address used as host<br>";
+}
+
+if(data.features.suspicious_tld){
+    issues += "✓ Suspicious domain extension<br>";
+}
+
+if(data.features.long_url){
+    issues += "✓ Long URL detected<br>";
+}
+
+box.innerHTML =
+"<b>Result:</b> " + data.verdict +
+"<br><b>Risk Score:</b> " + data.score + "/100" +
+"<br><br><b>Detected Issues:</b><br>" +
+(issues || "✓ No suspicious issues detected");
+
+
+
+if(data.verdict=="benign"){
+
+    box.style.background="#d4edda";
+    box.style.color="green";
+
+}
+else if(data.verdict=="suspicious"){
+
+    box.style.background="#fff3cd";
+    box.style.color="#856404";
+
+}
+else{
+
+    box.style.background="#f8d7da";
+    box.style.color="red";
+
+}
+
+});
+
+}
+
+
+</script>
+
+
+</body>
+</html>
